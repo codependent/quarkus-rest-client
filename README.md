@@ -74,4 +74,14 @@ Trace:  object java.security.SecureRandom
 
 ## nocdi branch
 
-RestClient instantiated manually (no CDI). Native image construction works.
+RestClient instantiated manually (no CDI). Native image construction works:
+
+```
+[INFO] [io.quarkus.deployment.QuarkusAugmentor] Quarkus augmentation completed in 72716ms
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:14 min
+[INFO] Finished at: 2020-03-21T12:48:07+01:00
+[INFO] ------------------------------------------------------------------------
+```
