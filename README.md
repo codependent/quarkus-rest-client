@@ -1,6 +1,6 @@
 # quarkus-rest-client project
 
-`ExampleResource ` Offers one endpoint `http://localhost:8080/echo` that calls `https://postman-echo.com/get`
+`ExampleResource` offers one endpoint `http://localhost:8080/echo` that calls `https://postman-echo.com/get`
 using a RestClient.
 
 Run the application with:
@@ -11,7 +11,7 @@ Run the application with:
 
 ## Master branch
 
-RestClient as @ApplicationScoped injected with CDI. Native image construction fails:
+`RestClient` as `@ApplicationScoped` is injected with CDI into `ExampleResource`. Native image construction fails:
 
 ```
 ./mvnw package -Pnative -Dquarkus.native.container-build=true 
