@@ -1,30 +1,77 @@
 # quarkus-rest-client project
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+`ExampleResource ` Offers one endpoint `http://localhost:8080/echo` that calls `https://postman-echo.com/get`
+using a RestClient.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+Run the application with:
 
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
 ```
 ./mvnw quarkus:dev
 ```
 
-## Packaging and running the application
+## Master branch
 
-The application can be packaged using `./mvnw package`.
-It produces the `quarkus-rest-client-1.0.0-SNAPSHOT-runner.jar` file in the `/target` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/lib` directory.
+RestClient as @ApplicationScoped injected with CDI. Native image construction fails:
 
-The application is now runnable using `java -jar target/quarkus-rest-client-1.0.0-SNAPSHOT-runner.jar`.
+```
+./mvnw package -Pnative -Dquarkus.native.container-build=true 
+```
 
-## Creating a native executable
+```
+Error: No instances of sun.security.provider.NativePRNG are allowed in the image heap as this class should be initialized at image runtime. To see how this object got instantiated use -H:+TraceClassInitialization.
+Detailed message:
+Trace:  object java.security.SecureRandom
+        object sun.security.ssl.SSLContextImpl$TLSContext
+        object sun.security.ssl.SSLSocketFactoryImpl
+        object org.apache.http.conn.ssl.SSLConnectionSocketFactory
+        object java.util.concurrent.ConcurrentHashMap$Node
+        object java.util.concurrent.ConcurrentHashMap$Node[]
+        object java.util.concurrent.ConcurrentHashMap
+        object org.apache.http.config.Registry
+        object org.apache.http.impl.conn.DefaultHttpClientConnectionOperator
+        object org.apache.http.impl.conn.PoolingHttpClientConnectionManager
+        object org.apache.http.impl.client.HttpClientBuilder$2
+        object java.lang.Object[]
+        object java.util.ArrayList
+        object org.apache.http.impl.client.InternalHttpClient
+        object org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine
+        object org.jboss.resteasy.client.jaxrs.internal.ResteasyClientImpl
+        object org.codependent.RestClient_ClientProxy
+        object org.codependent.RestClient_Bean
+        object java.lang.Object[]
+        object java.util.ArrayList
+        object io.quarkus.arc.impl.ArcContainerImpl
+        object io.quarkus.arc.runtime.ArcRecorder$2
+        field io.quarkus.resteasy.common.runtime.QuarkusInjectorFactory.CONTAINER
 
-You can create a native executable using: `./mvnw package -Pnative`.
+com.oracle.svm.core.util.UserError$UserException: No instances of sun.security.provider.NativePRNG are allowed in the image heap as this class should be initialized at image runtime. To see how this object got instantiated use -H:+TraceClassInitialization.
+Detailed message:
+Trace:  object java.security.SecureRandom
+        object sun.security.ssl.SSLContextImpl$TLSContext
+        object sun.security.ssl.SSLSocketFactoryImpl
+        object org.apache.http.conn.ssl.SSLConnectionSocketFactory
+        object java.util.concurrent.ConcurrentHashMap$Node
+        object java.util.concurrent.ConcurrentHashMap$Node[]
+        object java.util.concurrent.ConcurrentHashMap
+        object org.apache.http.config.Registry
+        object org.apache.http.impl.conn.DefaultHttpClientConnectionOperator
+        object org.apache.http.impl.conn.PoolingHttpClientConnectionManager
+        object org.apache.http.impl.client.HttpClientBuilder$2
+        object java.lang.Object[]
+        object java.util.ArrayList
+        object org.apache.http.impl.client.InternalHttpClient
+        object org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine
+        object org.jboss.resteasy.client.jaxrs.internal.ResteasyClientImpl
+        object org.codependent.RestClient_ClientProxy
+        object org.codependent.RestClient_Bean
+        object java.lang.Object[]
+        object java.util.ArrayList
+        object io.quarkus.arc.impl.ArcContainerImpl
+        object io.quarkus.arc.runtime.ArcRecorder$2
+        field io.quarkus.resteasy.common.runtime.QuarkusInjectorFactory.CONTAINER
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: `./mvnw package -Pnative -Dquarkus.native.container-build=true`.
+```
 
-You can then execute your native executable with: `./target/quarkus-rest-client-1.0.0-SNAPSHOT-runner`
+## nocdi branch
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image-guide.# quarkus-rest-client
+RestClient instantiated manually (no CDI). Native image construction works.
