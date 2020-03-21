@@ -72,9 +72,72 @@ Trace:  object java.security.SecureRandom
 
 ```
 
+## master-additional branch
+
+Same as master branch but including the recommended fix described in the documentation: https://quarkus.io/guides/writing-native-applications-tips#delaying-class-initialization
+
+pom.xml:
+
+```
+<quarkus.native.additional-build-args>--initialize-at-run-time=org.codependent.RestClient,-H:+TraceClassInitialization</quarkus.native.additional-build-args>
+```
+
+```
+./mvnw package -Pnative -Dquarkus.native.container-build=true 
+```
+
+```
+com.oracle.svm.core.util.UserError$UserException: Classes that should be initialized at run time got initialized during image building:
+ org.codependent.RestClient the class was requested to be initialized at build time (from the command line). io.quarkus.runner.ApplicationImpl caused initialization of this class with the following trace: 
+        at org.codependent.RestClient.<clinit>(RestClient.java)
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Class.java:348)
+        at org.codependent.RestClient_Bean.<init>(RestClient_Bean.zig:135)
+        at io.quarkus.arc.setup.Default_ComponentsProvider.addBeans1(Default_ComponentsProvider.zig:106)
+        at io.quarkus.arc.setup.Default_ComponentsProvider.getComponents(Default_ComponentsProvider.zig:38)
+        at io.quarkus.arc.impl.ArcContainerImpl.<init>(ArcContainerImpl.java:103)
+        at io.quarkus.arc.Arc.initialize(Arc.java:20)
+        at io.quarkus.arc.runtime.ArcRecorder.getContainer(ArcRecorder.java:35)
+        at io.quarkus.deployment.steps.ArcProcessor$generateResources20.deploy_0(ArcProcessor$generateResources20.zig:72)
+        at io.quarkus.deployment.steps.ArcProcessor$generateResources20.deploy(ArcProcessor$generateResources20.zig:36)
+        at io.quarkus.runner.ApplicationImpl.<clinit>(ApplicationImpl.zig:338)
+
+org.codependent.RestClient_ClientProxy the class was requested to be initialized at build time (subtype of org.codependent.RestClient). io.quarkus.runner.ApplicationImpl caused initialization of this class with the following trace: 
+        at org.codependent.RestClient_ClientProxy.<clinit>(RestClient_ClientProxy.zig)
+        at org.codependent.RestClient_Bean.<init>(RestClient_Bean.zig:164)
+        at io.quarkus.arc.setup.Default_ComponentsProvider.addBeans1(Default_ComponentsProvider.zig:106)
+        at io.quarkus.arc.setup.Default_ComponentsProvider.getComponents(Default_ComponentsProvider.zig:38)
+        at io.quarkus.arc.impl.ArcContainerImpl.<init>(ArcContainerImpl.java:103)
+        at io.quarkus.arc.Arc.initialize(Arc.java:20)
+        at io.quarkus.arc.runtime.ArcRecorder.getContainer(ArcRecorder.java:35)
+        at io.quarkus.deployment.steps.ArcProcessor$generateResources20.deploy_0(ArcProcessor$generateResources20.zig:72)
+        at io.quarkus.deployment.steps.ArcProcessor$generateResources20.deploy(ArcProcessor$generateResources20.zig:36)
+        at io.quarkus.runner.ApplicationImpl.<clinit>(ApplicationImpl.zig:338)
+
+
+        at com.oracle.svm.core.util.UserError.abort(UserError.java:65)
+        at com.oracle.svm.hosted.classinitialization.ConfigurableClassInitialization.checkDelayedInitialization(ConfigurableClassInitialization.java:510)
+        at com.oracle.svm.hosted.classinitialization.ClassInitializationFeature.duringAnalysis(ClassInitializationFeature.java:187)
+        at com.oracle.svm.hosted.NativeImageGenerator.lambda$runPointsToAnalysis$8(NativeImageGenerator.java:710)
+        at com.oracle.svm.hosted.FeatureHandler.forEachFeature(FeatureHandler.java:63)
+        at com.oracle.svm.hosted.NativeImageGenerator.runPointsToAnalysis(NativeImageGenerator.java:710)
+        at com.oracle.svm.hosted.NativeImageGenerator.doRun(NativeImageGenerator.java:530)
+        at com.oracle.svm.hosted.NativeImageGenerator.lambda$run$0(NativeImageGenerator.java:445)
+        at java.util.concurrent.ForkJoinTask$AdaptedRunnableAction.exec(ForkJoinTask.java:1386)
+        at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+        at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+        at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+        at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
+```
+
+
 ## nocdi branch
 
 RestClient instantiated manually (no CDI). Native image construction works:
+
+```
+./mvnw package -Pnative -Dquarkus.native.container-build=true 
+```
 
 ```
 [INFO] [io.quarkus.deployment.QuarkusAugmentor] Quarkus augmentation completed in 72716ms
